@@ -2,16 +2,26 @@
 
 $dataFile = 'bbs.dat';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' &&
+	isset($_POST['message']) &&
+	isset($_POST['user'])) {
 
-	$message = $_POST['message'];
-	$user = $_POST['user'];
+	$message = trim($_POST['message']);
+	$user = trim($_POST['user']);
 
-	$newData = $message  . "\t" . $user . "\n";
 
-	$fp = fopen($dataFile, 'a');
-	fwrite($fp, $newData);
-	fclose($fp);
+	if ($message !== '') {
+
+		$user = ($user === '') ? '名前が記入されていません' : $user;
+		// 挿入されるデータの内容を記載している
+		// $messageを入れてTABで区切って、$userが来て、改行としている
+		$newData = $message  . "\t" . $user . "\n";
+
+		// aというモードで開いている
+		$fp = fopen($dataFile, 'a');
+		fwrite($fp, $newData);
+		fclose($fp);
+	}
 }
 
 ?>
