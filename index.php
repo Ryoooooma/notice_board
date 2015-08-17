@@ -13,9 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' &&
 	if ($message !== '') {
 
 		$user = ($user === '') ? '名前が記入されていません' : $user;
+
+		// 
+		$message = str_replace("\t", ' ', $message);
+		$user = str_replace("\t", ' ', $user);
+
+		$postedAt = date('Y-m-d H:i:s');
+
 		// 挿入されるデータの内容を記載している
 		// $messageを入れてTABで区切って、$userが来て、改行としている
-		$newData = $message  . "\t" . $user . "\n";
+		$newData = $message  . "\t" . $user . "\t" . $postedAt . "\n";
 
 		// aというモードで開いている
 		$fp = fopen($dataFile, 'a');
