@@ -2,6 +2,21 @@
 
 $dataFile = 'bbs.dat';
 
+// CSRF対策
+session_start();
+
+function setToken() {
+	$token = sha1(uniqid(mt_rand(), true));
+	$_SESSION['token'] = $token;
+}
+
+function checkToken() {
+	if (empty($_SESSION['token']) || ($_SESSION['token'] != $_POST['token'])) {
+		echo "不正なポストが行われました。";
+		exit;
+	}
+}
+
 // エスケープする際は命令が長いので独自関数を作るのが定石
 function h($s) {
 	return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
@@ -10,6 +25,8 @@ function h($s) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' &&
 	isset($_POST['message']) &&
 	isset($_POST['user'])) {
+
+	checkToken();
 
 	$message = trim($_POST['message']);
 	$user = trim($_POST['user']);
@@ -34,6 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' &&
 		fwrite($fp, $newData);
 		fclose($fp);
 	}
+} else {
+	setToken();
 }
 
 // fileで中身を取り出して配列にしてくれる。オプションで最後の改行記号を取り去ってくれる
@@ -57,7 +76,7 @@ $posts = array_reverse($posts);
 			Message: <input type="text" name="message">
 			User: <input type="text" name="user">
 			<input type="submit" value="投稿">
-
+			<input type="hidden" name="token" value="<?php echo h($_SESSION['token']); ?>">
 		</form>
 		<h2>投稿一覧（<?php echo count($posts);?>件) </h2>
 		<ul>
